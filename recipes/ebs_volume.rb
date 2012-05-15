@@ -24,7 +24,7 @@ if node[:ec2]
   include_recipe "xfs"
 
   begin
-    aws = Chef::DataBagItem.load(:aws, :main)
+    aws = Chef::DataBagItem.load(:aws, :main)[node.chef_environment]
     Chef::Log.info("Loaded AWS information from DataBagItem aws[#{aws['id']}]")
   rescue
     Chef::Log.fatal("Could not find the 'main' item in the 'aws' data bag")
