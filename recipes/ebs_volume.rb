@@ -44,6 +44,7 @@ if node[:ec2]
   slave_role = String.new
   root_pw = String.new
   snapshots_to_keep = String.new
+  volume_size = 50
 
   search(:apps) do |app|
     if (app["database_master_role"] & node.run_list.roles).length == 1 || (app["database_slave_role"] & node.run_list.roles).length == 1
@@ -51,6 +52,7 @@ if node[:ec2]
       slave_role = app["database_slave_role"] & node.run_list.roles
       root_pw = app["mysql_root_password"][node.chef_environment]
       snapshots_to_keep = app["snapshots_to_keep"][node.chef_environment]
+      volume_size = app["volume_size"][node.chef_environment] || volume_size
 
       if (master_role & node.run_list.roles).length == 1
         db_type = "master"
@@ -102,7 +104,7 @@ if node[:ec2]
   aws_ebs_volume "#{db_role}_#{node.chef_environment}" do
     aws_access_key aws['aws_access_key_id']
     aws_secret_access_key aws['aws_secret_access_key']
-    size 50
+    size volume_size
     device ebs_vol_dev
     snapshots_to_keep snapshots_to_keep
     case db_type
